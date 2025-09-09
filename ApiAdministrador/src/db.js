@@ -3,12 +3,12 @@ const sql = require('mssql');
 const config = {
   user: 'EmelyNj',
   password: 'Mely123#',
-  server: 'localhost',
+  server: 'localhost', 
   database: 'bazarBEG_Administrador',
   port: 53158,
   options: {
     encrypt: true,
-    trustServerCertificate: true,
+    trustServerCertificate: true, 
   },
 };
 
@@ -23,4 +23,7 @@ const poolPromise = new sql.ConnectionPool(config)
     throw err;
   });
 
-module.exports = { sql, poolPromise };
+module.exports = {
+  sql, 
+  poolPromise,
+};

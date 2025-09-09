@@ -1,9 +1,9 @@
-const { getConnection } = require('../db');
+const { poolPromise } = require('../db');
 const productosService = require('../services/ProductosService');
 
 async function getAllProductos(req, res) {
   try {
-    const pool = await getConnection();
+    const pool = await poolPromise;
     const productos = await productosService.getAllProductos(pool);
     res.json(productos);
   } catch (err) {
@@ -13,7 +13,7 @@ async function getAllProductos(req, res) {
 
 async function getProductoById(req, res) {
   try {
-    const pool = await getConnection();
+    const pool = await poolPromise;
     const producto = await productosService.getProductoById(pool, req.params.id);
     if (!producto) {
       return res.status(404).json({ error: 'Producto no encontrado' });
@@ -26,7 +26,7 @@ async function getProductoById(req, res) {
 
 async function createProducto(req, res) {
   try {
-    const pool = await getConnection();
+    const pool = await poolPromise;
     const nuevoProducto = await productosService.createProducto(pool, req.body);
     res.status(201).json(nuevoProducto);
   } catch (err) {
@@ -36,7 +36,7 @@ async function createProducto(req, res) {
 
 async function updateProducto(req, res) {
   try {
-    const pool = await getConnection();
+    const pool = await poolPromise;
     const { id } = req.params;
     const updated = await productosService.updateProducto(pool, id, req.body);
     if (!updated) {
@@ -50,7 +50,7 @@ async function updateProducto(req, res) {
 
 async function deleteProducto(req, res) {
   try {
-    const pool = await getConnection();
+    const pool = await poolPromise;
     const deleted = await productosService.deleteProducto(pool, req.params.id);
     if (!deleted) {
       return res.status(404).json({ error: 'Producto no encontrado o no eliminado' });
