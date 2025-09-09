@@ -1,9 +1,7 @@
-const sql = require('mssql');
-
 async function getAllProductos(pool) {
   try {
-    const result = await pool.request().query('SELECT * FROM productos');
-    return result.recordset;
+    const [rows] = await pool.query('SELECT * FROM productos');
+    return rows;
   } catch (err) {
     throw new Error('Error al obtener los productos: ' + err.message);
   }
@@ -11,14 +9,8 @@ async function getAllProductos(pool) {
 
 async function getProductoById(pool, id) {
   try {
-    const result = await pool.request()
-      .input('id', sql.Int, id)
-      .query('SELECT * FROM productos WHERE id = @id');
-    
-    if (result.recordset.length === 0) {
-      return null;
-    }
-    return result.recordset[0];
+    const [rows] = await pool.query('SELECT * FROM productos WHERE id = ?', [id]);
+    return rows.length > 0 ? rows[0] : null;
   } catch (err) {
     throw new Error('Error al obtener el producto: ' + err.message);
   }
@@ -26,20 +18,13 @@ async function getProductoById(pool, id) {
 
 async function createProducto(pool, { nombre, descripcion, precio, stock, imagen_url, categoria_id }) {
   try {
-    const result = await pool.request()
-      .input('nombre', sql.VarChar, nombre)
-      .input('descripcion', sql.Text, descripcion || null)
-      .input('precio', sql.Decimal(10, 2), precio)
-      .input('stock', sql.Int, stock)
-      .input('imagen_url', sql.VarChar, imagen_url || null)
-      .input('categoria_id', sql.Int, categoria_id)
-      .query(`
-        INSERT INTO productos (nombre, descripcion, precio, stock, imagen_url, categoria_id)
-        VALUES (@nombre, @descripcion, @precio, @stock, @imagen_url, @categoria_id);
-        SELECT SCOPE_IDENTITY() AS id;
-      `);
-      
-    return { id: result.recordset[0].id, nombre, precio };
+    const [result] = await pool.query(
+      `INSERT INTO productos (nombre, descripcion, precio, stock, imagen_url, categoria_id)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [nombre, descripcion || null, precio, stock, imagen_url || null, categoria_id]
+    );
+
+    return { id: result.insertId, nombre, precio };
   } catch (err) {
     throw new Error('Error al crear el producto: ' + err.message);
   }
@@ -47,24 +32,15 @@ async function createProducto(pool, { nombre, descripcion, precio, stock, imagen
 
 async function updateProducto(pool, id, { nombre, descripcion, precio, stock, imagen_url, categoria_id, status }) {
   try {
-    const result = await pool.request()
-      .input('id', sql.Int, id)
-      .input('nombre', sql.VarChar, nombre)
-      .input('descripcion', sql.Text, descripcion || null)
-      .input('precio', sql.Decimal(10, 2), precio)
-      .input('stock', sql.Int, stock)
-      .input('imagen_url', sql.VarChar, imagen_url || null)
-      .input('categoria_id', sql.Int, categoria_id)
-      .input('status', sql.Int, status)
-      .query(`
-        UPDATE productos
-        SET nombre = @nombre, descripcion = @descripcion, precio = @precio,
-            stock = @stock, imagen_url = @imagen_url, categoria_id = @categoria_id,
-            status = @status
-        WHERE id = @id;
-      `);
+    const [result] = await pool.query(
+      `UPDATE productos 
+       SET nombre = ?, descripcion = ?, precio = ?, stock = ?, 
+           imagen_url = ?, categoria_id = ?, status = ? 
+       WHERE id = ?`,
+      [nombre, descripcion || null, precio, stock, imagen_url || null, categoria_id, status, id]
+    );
 
-    return result.rowsAffected[0] > 0;
+    return result.affectedRows > 0;
   } catch (err) {
     throw new Error('Error al actualizar el producto: ' + err.message);
   }
@@ -72,11 +48,8 @@ async function updateProducto(pool, id, { nombre, descripcion, precio, stock, im
 
 async function deleteProducto(pool, id) {
   try {
-    const result = await pool.request()
-      .input('id', sql.Int, id)
-      .query('DELETE FROM productos WHERE id = @id');
-
-    return result.rowsAffected[0] > 0;
+    const [result] = await pool.query('DELETE FROM productos WHERE id = ?', [id]);
+    return result.affectedRows > 0;
   } catch (err) {
     throw new Error('Error al eliminar el producto: ' + err.message);
   }

@@ -1,9 +1,9 @@
-const { poolPromise } = require('../db');
+const pool = require('../db'); 
 const productosService = require('../services/ProductosService');
 
+// Obtener todos los productos
 async function getAllProductos(req, res) {
   try {
-    const pool = await poolPromise;
     const productos = await productosService.getAllProductos(pool);
     res.json(productos);
   } catch (err) {
@@ -11,9 +11,9 @@ async function getAllProductos(req, res) {
   }
 }
 
+// Obtener un producto por ID
 async function getProductoById(req, res) {
   try {
-    const pool = await poolPromise;
     const producto = await productosService.getProductoById(pool, req.params.id);
     if (!producto) {
       return res.status(404).json({ error: 'Producto no encontrado' });
@@ -24,9 +24,9 @@ async function getProductoById(req, res) {
   }
 }
 
+// Crear un producto
 async function createProducto(req, res) {
   try {
-    const pool = await poolPromise;
     const nuevoProducto = await productosService.createProducto(pool, req.body);
     res.status(201).json(nuevoProducto);
   } catch (err) {
@@ -34,11 +34,19 @@ async function createProducto(req, res) {
   }
 }
 
+// Actualizar un producto
 async function updateProducto(req, res) {
   try {
-    const pool = await poolPromise;
     const { id } = req.params;
-    const updated = await productosService.updateProducto(pool, id, req.body);
+    const { nombre, descripcion, precio, stock, imagen_url, categoria_id } = req.body;
+    const updated = await productosService.updateProducto(pool, id, {
+      nombre,
+      descripcion,
+      precio,
+      stock,
+      imagen_url,
+      categoria_id
+    });
     if (!updated) {
       return res.status(404).json({ error: 'Producto no encontrado o no actualizado' });
     }
@@ -48,9 +56,9 @@ async function updateProducto(req, res) {
   }
 }
 
+// Eliminar un producto
 async function deleteProducto(req, res) {
   try {
-    const pool = await poolPromise;
     const deleted = await productosService.deleteProducto(pool, req.params.id);
     if (!deleted) {
       return res.status(404).json({ error: 'Producto no encontrado o no eliminado' });

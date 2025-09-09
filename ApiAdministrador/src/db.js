@@ -1,29 +1,15 @@
-const sql = require('mssql');
+const mysql = require('mysql2/promise');
+require('dotenv').config(); 
 
-const config = {
-  user: 'EmelyNj',
-  password: 'Mely123#',
-  server: 'localhost', 
-  database: 'bazarBEG_Administrador',
-  port: 53158,
-  options: {
-    encrypt: true,
-    trustServerCertificate: true, 
-  },
-};
+const pool = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD, 
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
 
-const poolPromise = new sql.ConnectionPool(config)
-  .connect()
-  .then(pool => {
-    console.log('✅ Conexión exitosa a SQL Server');
-    return pool;
-  })
-  .catch(err => {
-    console.error('❌ Error de conexión a la base de datos:', err);
-    throw err;
-  });
+module.exports = pool;
 
-module.exports = {
-  sql, 
-  poolPromise,
-};
