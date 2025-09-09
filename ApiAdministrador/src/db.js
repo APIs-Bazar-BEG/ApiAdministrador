@@ -1,29 +1,26 @@
 const sql = require('mssql');
-require('dotenv').config();
 
-const dbConfig = {
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  server: process.env.DB_SERVER,
-  database: process.env.DB_DATABASE,
+const config = {
+  user: 'EmelyNj',
+  password: 'Mely123#',
+  server: 'localhost',
+  database: 'bazarBEG_Administrador',
+  port: 53158,
   options: {
     encrypt: true,
     trustServerCertificate: true,
-  }
+  },
 };
 
-async function getConnection() {
-  try {
-    const pool = await sql.connect(dbConfig);
-    console.log('✅ Conexión a la base de datos establecida.');
+const poolPromise = new sql.ConnectionPool(config)
+  .connect()
+  .then(pool => {
+    console.log('✅ Conexión exitosa a SQL Server');
     return pool;
-  } catch (err) {
+  })
+  .catch(err => {
     console.error('❌ Error de conexión a la base de datos:', err);
     throw err;
-  }
-}
+  });
 
-module.exports = {
-  getConnection,
-  sql
-};
+module.exports = { sql, poolPromise };
