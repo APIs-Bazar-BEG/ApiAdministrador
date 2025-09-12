@@ -1,3 +1,5 @@
+//Comentario para asociar con Jira
+
 const express = require('express');
 const router = express.Router();
 const categoriasController = require('../controllers/CategoriasController');

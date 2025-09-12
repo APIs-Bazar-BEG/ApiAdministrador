@@ -1,4 +1,5 @@
-const pool = require('../db'); // Cambiado: Ahora importas directamente el pool
+//Comentario para asociar con Jira, controller creado el 9 Septiembre 2025
+const pool = require('../db'); 
 const categoriasService = require('../services/CategoriasService');
 
 async function getAllCategorias(req, res) {
