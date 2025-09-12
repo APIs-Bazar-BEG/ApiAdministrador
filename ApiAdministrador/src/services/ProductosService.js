@@ -1,3 +1,4 @@
+//Comentario para asociar con Jira, service creado el 9 Septiembre 2025
 async function getAllProductos(pool) {
   try {
     const [rows] = await pool.query('SELECT * FROM productos');
