@@ -1,52 +1,95 @@
 //Comentario para asociar con Jira, service creado el 9 Septiembre 2025
+
+// Obtener todos los productos
 async function getAllProductos(pool) {
   try {
     const [rows] = await pool.query('SELECT * FROM productos');
-    return rows;
+    return rows.map(prod => ({
+      id: prod.id,
+      nombre: prod.nombre,
+      descripcion: prod.descripcion,
+      precio: prod.precio,
+      stock: prod.stock,
+      categoria_id: prod.categoria_id,
+      status: prod.status,
+      imagen: prod.imagen ? prod.imagen.toString('base64') : null
+    }));
   } catch (err) {
     throw new Error('Error al obtener los productos: ' + err.message);
   }
 }
 
+// Obtener producto por ID
 async function getProductoById(pool, id) {
   try {
     const [rows] = await pool.query('SELECT * FROM productos WHERE id = ?', [id]);
-    return rows.length > 0 ? rows[0] : null;
+    if (rows.length === 0) return null;
+    const prod = rows[0];
+    return {
+      id: prod.id,
+      nombre: prod.nombre,
+      descripcion: prod.descripcion,
+      precio: prod.precio,
+      stock: prod.stock,
+      categoria_id: prod.categoria_id,
+      status: prod.status,
+      imagen: prod.imagen ? prod.imagen.toString('base64') : null
+    };
   } catch (err) {
     throw new Error('Error al obtener el producto: ' + err.message);
   }
 }
 
-async function createProducto(pool, { nombre, descripcion, precio, stock, imagen_url, categoria_id }) {
+// Crear un producto
+async function createProducto(req, res) {
   try {
-    const [result] = await pool.query(
-      `INSERT INTO productos (nombre, descripcion, precio, stock, imagen_url, categoria_id)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [nombre, descripcion || null, precio, stock, imagen_url || null, categoria_id]
-    );
+    const { nombre, descripcion, precio, stock, categoria_id, status } = req.body;
+    const imagen = req.file ? req.file.buffer : null; // ← toma la imagen del form-data
 
-    return { id: result.insertId, nombre, precio };
+    const nuevoProducto = await productosService.createProducto(pool, {
+      nombre,
+      descripcion,
+      precio,
+      stock,
+      categoria_id,
+      status,
+      imagen
+    });
+
+    res.status(201).json(nuevoProducto);
   } catch (err) {
-    throw new Error('Error al crear el producto: ' + err.message);
+    res.status(400).json({ error: err.message });
   }
 }
 
-async function updateProducto(pool, id, { nombre, descripcion, precio, stock, imagen_url, categoria_id, status }) {
+// Actualizar un producto
+async function updateProducto(req, res) {
   try {
-    const [result] = await pool.query(
-      `UPDATE productos 
-       SET nombre = ?, descripcion = ?, precio = ?, stock = ?, 
-           imagen_url = ?, categoria_id = ?, status = ? 
-       WHERE id = ?`,
-      [nombre, descripcion || null, precio, stock, imagen_url || null, categoria_id, status, id]
-    );
+    const { id } = req.params;
+    const { nombre, descripcion, precio, stock, categoria_id, status } = req.body;
+    const imagen = req.file ? req.file.buffer : null; // ← nueva imagen si se manda
 
-    return result.affectedRows > 0;
+    const updated = await productosService.updateProducto(pool, id, {
+      nombre,
+      descripcion,
+      precio,
+      stock,
+      categoria_id,
+      status,
+      imagen
+    });
+
+    if (!updated) {
+      return res.status(404).json({ error: 'Producto no encontrado o no actualizado' });
+    }
+
+    res.json({ msg: 'Producto actualizado correctamente' });
   } catch (err) {
-    throw new Error('Error al actualizar el producto: ' + err.message);
+    res.status(500).json({ error: err.message });
   }
 }
 
+// Eliminar producto
 async function deleteProducto(pool, id) {
   try {
     const [result] = await pool.query('DELETE FROM productos WHERE id = ?', [id]);
