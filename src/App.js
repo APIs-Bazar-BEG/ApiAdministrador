@@ -12,8 +12,8 @@ app.get('/', (req, res) => {
 });
 
 // Rutas para las APIs de Categorías y Productos
-app.use('/api/categorias', categoriasRoutes);
-app.use('/api/productos', productosRoutes);
+app.use('/categorias', categoriasRoutes);
+app.use('/productos', productosRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
