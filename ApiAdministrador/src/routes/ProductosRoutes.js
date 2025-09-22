@@ -1,52 +1,45 @@
-//Comentario para asociar con Jira
+// src/routes/ProductosRoutes.js
 const express = require('express');
 const router = express.Router();
 const productosController = require('../controllers/ProductosController');
+const productosService = require('../services/ProductosService');
+const pool = require('../db');
 const multer = require('multer');
 
-// Configuración Multer para guardar archivos en memoria
+// Configuración de multer en memoria
 const upload = multer({ storage: multer.memoryStorage() });
 
 // Obtener todos los productos
-router.get('/', productosController.getAllProductos);
-
-// Obtener un producto por ID
-router.get('/:id', productosController.getProductoById);
-
-// Crear un nuevo producto con imagen
-router.post('/', upload.single('imagen'), async (req, res) => {
-  try {
-    const { nombre, descripcion, precio, stock, categoria_id } = req.body;
-    const imagen = req.file ? req.file.buffer : null;
-    const nuevoProducto = await productosController.createProducto({
-      body: { nombre, descripcion, precio, stock, categoria_id, imagen }
-    }, res);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-// Actualizar un producto (puede actualizar la imagen)
-router.put('/:id', upload.single('imagen'), async (req, res) => {
-  try {
-    const { nombre, descripcion, precio, stock, categoria_id, status } = req.body;
-    const imagen = req.file ? req.file.buffer : null;
-    await productosController.updateProducto({
-      params: { id: req.params.id },
-      body: { nombre, descripcion, precio, stock, categoria_id, status, imagen }
-    }, res);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-// Eliminar un producto
-router.delete('/:id', productosController.deleteProducto);
-
-module.exports = router;
+router.get('/', (req, res) => productosController.getAllProductos(req, res));
 
 // Crear producto con imagen
-router.post('/', upload.single('imagen'), productosController.createProducto);
+router.post('/', upload.single('imagen'), (req, res) => productosController.createProducto(req, res));
 
-// Actualizar producto con imagen
-router.put('/:id', upload.single('imagen'), productosController.updateProducto);
+// Obtener producto por ID (datos)
+router.get('/:id', (req, res) => productosController.getProductoById(req, res));
+
+// Nueva ruta para solo la imagen
+router.get('/:id/imagen', async (req, res) => {
+  try {
+    const imagen = await productosService.getProductoImagen(pool, req.params.id);
+
+    if (!imagen) {
+      return res.status(404).send("Imagen no encontrada");
+    }
+
+    res.setHeader('Content-Type', 'image/jpeg'); 
+    res.send(imagen); 
+  } catch (err) {
+    res.status(500).send("Error al obtener la imagen: " + err.message);
+  }
+});
+
+
+
+// Actualizar producto (con nueva imagen si llega)
+router.put('/:id', upload.single('imagen'), (req, res) => productosController.updateProducto(req, res));
+
+// Eliminar producto
+router.delete('/:id', (req, res) => productosController.deleteProducto(req, res));
+
+module.exports = router;
