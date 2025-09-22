@@ -1,4 +1,4 @@
-const pool = require('../db');
+const pool = require('config/db');
 const productosService = require('../services/ProductosService');
 
 // Obtener todos los productos
