@@ -1,7 +1,7 @@
 const express = require('express');
 require('dotenv').config();
-const categoriasRoutes = require('./routes/CategoriasRoutes');
-const productosRoutes = require('./routes/ProductosRoutes');
+const categoriasRoutes = require('./src/routes/CategoriasRoutes');
+const productosRoutes = require('./src/routes/ProductosRoutes');
 
 const app = express();
 app.use(express.json());
