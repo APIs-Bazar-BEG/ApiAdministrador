@@ -5,7 +5,7 @@ const fs = require('fs');
 const config ={
 uri:process.env.DB_URI,
   ssl: {
-    ca: fs.readFileSync(__dirname + "/car.pem"),
+    ca: fs.readFileSync(__dirname + "/ca.pem"),
     rejectUnauthorized: true
   },
 };
