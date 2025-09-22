@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const categoriasController = require('../controllers/CategoriasController');
 const categoriasService = require('../services/CategoriasService');
-const pool = require('config/db');
+const pool = require('../config/db');
 const multer = require('multer');
 
 // Configuración Multer para guardar en memoria (no en disco)

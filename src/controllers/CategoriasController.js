@@ -1,5 +1,5 @@
 //Comentario para asociar con Jira, controller creado el 9 Septiembre 2025
-const pool = require('config/db');
+const pool = require('../config/db');
 const categoriasService = require('../services/CategoriasService');
 
 // Obtener todas las categorías

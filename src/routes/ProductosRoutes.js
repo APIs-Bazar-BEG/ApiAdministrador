@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const productosController = require('../controllers/ProductosController');
 const productosService = require('../services/ProductosService');
-const pool = require('config/db');
+const pool = require('../config/db');
 const multer = require('multer');
 
 // Configuración de multer en memoria
