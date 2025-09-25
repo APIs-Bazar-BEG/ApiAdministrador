@@ -6,20 +6,26 @@ const categoriasController = require('../controllers/CategoriasController');
 const categoriasService = require('../services/CategoriasService');
 const pool = require('../config/db');
 const multer = require('multer');
+const authMiddleware = require("../middlewares/authMiddleware"); 
 
 // Configuración Multer para guardar en memoria (no en disco)
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Obtener todas las categorías
+// Obtener todas las categorías (sin middleware)
 router.get('/', (req, res) => categoriasController.getAllCategorias(req, res));
 
-// Crear una nueva categoría con imagen
-router.post('/', upload.single('imagen'), (req, res) => categoriasController.createCategoria(req, res));
+// Crear una nueva categoría con imagen (con middleware)
+router.post(
+  '/', 
+  authMiddleware, 
+  upload.single('imagen'), 
+  (req, res) => categoriasController.createCategoria(req, res)
+);
 
-// Obtener una categoría por ID
+// Obtener una categoría por ID (sin middleware)
 router.get('/:id', (req, res) => categoriasController.getCategoriaById(req, res));
 
-// 🔥 Nueva ruta para solo la imagen de una categoría
+// Nueva ruta para solo la imagen de una categoría (sin middleware)
 router.get('/:id/imagen', async (req, res) => {
   try {
     const categoria = await categoriasService.getCategoriaById(pool, req.params.id);
@@ -34,10 +40,19 @@ router.get('/:id/imagen', async (req, res) => {
   }
 });
 
-// Actualizar una categoría (con nueva imagen si se manda)
-router.put('/:id', upload.single('imagen'), (req, res) => categoriasController.updateCategoria(req, res));
+// Actualizar una categoría (con middleware)
+router.put(
+  '/:id',
+  authMiddleware,
+  upload.single('imagen'),
+  (req, res) => categoriasController.updateCategoria(req, res)
+);
 
-// Eliminar una categoría
-router.delete('/:id', (req, res) => categoriasController.deleteCategoria(req, res));
+// Eliminar una categoría (con middleware)
+router.delete(
+  '/:id',
+  authMiddleware,
+  (req, res) => categoriasController.deleteCategoria(req, res)
+);
 
 module.exports = router;

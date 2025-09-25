@@ -1,24 +1,29 @@
-// src/routes/ProductosRoutes.js
 const express = require('express');
 const router = express.Router();
 const productosController = require('../controllers/ProductosController');
 const productosService = require('../services/ProductosService');
 const pool = require('../config/db');
 const multer = require('multer');
+const authMiddleware = require("../middlewares/authMiddleware"); 
 
 // Configuración de multer en memoria
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Obtener todos los productos
+// Obtener todos los productos (sin middleware)
 router.get('/', (req, res) => productosController.getAllProductos(req, res));
 
-// Crear producto con imagen
-router.post('/', upload.single('imagen'), (req, res) => productosController.createProducto(req, res));
+// Crear producto con imagen (con middleware)
+router.post(
+  '/', 
+  authMiddleware, 
+  upload.single('imagen'), 
+  (req, res) => productosController.createProducto(req, res)
+);
 
-// Obtener producto por ID (datos)
+// Obtener producto por ID (sin middleware)
 router.get('/:id', (req, res) => productosController.getProductoById(req, res));
 
-// Nueva ruta para solo la imagen
+// Nueva ruta para solo la imagen (sin middleware)
 router.get('/:id/imagen', async (req, res) => {
   try {
     const imagen = await productosService.getProductoImagen(pool, req.params.id);
@@ -34,12 +39,19 @@ router.get('/:id/imagen', async (req, res) => {
   }
 });
 
+// Actualizar producto (con middleware)
+router.put(
+  '/:id', 
+  authMiddleware, 
+  upload.single('imagen'), 
+  (req, res) => productosController.updateProducto(req, res)
+);
 
-
-// Actualizar producto (con nueva imagen si llega)
-router.put('/:id', upload.single('imagen'), (req, res) => productosController.updateProducto(req, res));
-
-// Eliminar producto
-router.delete('/:id', (req, res) => productosController.deleteProducto(req, res));
+// Eliminar producto (con middleware)
+router.delete(
+  '/:id', 
+  authMiddleware, 
+  (req, res) => productosController.deleteProducto(req, res)
+);
 
 module.exports = router;
