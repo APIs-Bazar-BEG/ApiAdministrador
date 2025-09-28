@@ -60,10 +60,24 @@ async function deleteCategoria(req, res) {
   }
 }
 
+async function getCategoriaByIdController(req, res) {
+  try {
+    const id = req.params.id;
+    const categoria = await categoriasService.getCategoriaById(pool, id);
+    if (!categoria) {
+      return res.status(404).json({ error: "Categoría no encontrada" });
+    }
+    res.json(categoria);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+
 module.exports = {
   getAllCategorias,
   createCategoria,
-  getCategoriaById: categoriasService.getCategoriaById.bind(null, pool),
+   getCategoriaById: getCategoriaByIdController,
   updateCategoria: (req, res) => updateCategoria(req, res), 
   deleteCategoria: (req, res) => deleteCategoria(req, res)
 };
