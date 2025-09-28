@@ -1,5 +1,23 @@
-// Obtener todos los productos (JSON con base64)
+// Obtener todos los productos (SIN imagen)
 async function getAllProductos(pool) {
+  const [rows] = await pool.query(`
+    SELECT id, nombre, descripcion, precio, stock, categoria_id, status 
+    FROM productos
+  `);
+
+  return rows.map(prod => ({
+    id: prod.id,
+    nombre: prod.nombre,
+    descripcion: prod.descripcion,
+    precio: prod.precio,
+    stock: prod.stock,
+    categoria_id: prod.categoria_id,
+    status: prod.status
+  }));
+}
+
+// Obtener todos los productos (CON imagen)
+async function getAllProductosImg(pool) {
   const [rows] = await pool.query(`
     SELECT id, nombre, descripcion, precio, stock, categoria_id, status, imagen 
     FROM productos
@@ -16,6 +34,7 @@ async function getAllProductos(pool) {
     imagen: prod.imagen ? prod.imagen.toString("base64") : null
   }));
 }
+
 
 // Crear producto
 async function createProducto(pool, { nombre, descripcion, precio, stock, categoria_id, status, imagen }) {
@@ -96,5 +115,6 @@ module.exports = {
   getProductoById,
   getProductoImagen, //  ruta de imagen
   updateProducto,
-  deleteProducto
+  deleteProducto,
+  getAllProductosImg // productos con imagen
 };

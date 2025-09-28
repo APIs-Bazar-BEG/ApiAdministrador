@@ -1,7 +1,7 @@
 //Comentario para asociar con Jira, service creado el 9 Septiembre 2025
 
-/// Obtener todas las categorías
-async function getAllCategorias(pool) {
+/// Obtener todas las categorías (con imagen)
+async function getAllCategoriasimg(pool) {
   try {
     const [rows] = await pool.query("SELECT id, nombre, imagen FROM categorias");
 
@@ -32,25 +32,6 @@ async function createCategoria(pool, { nombre, imagen }) {
   }
 }
 
-// Obtener categoría por ID
-async function getCategoriaById(pool, id) {
-  try {
-    const [rows] = await pool.query(
-      "SELECT id, nombre, imagen FROM categorias WHERE id = ?",
-      [id]
-    );
-    if (rows.length === 0) return null;
-
-    const categoria = rows[0];
-    return {
-      id: categoria.id,
-      nombre: categoria.nombre,
-      imagen: categoria.imagen ? categoria.imagen.toString("base64") : null
-    };
-  } catch (err) {
-    throw new Error("Error al obtener la categoría: " + err.message);
-  }
-}
 
 // Actualizar categoría
 async function updateCategoria(pool, id, { nombre, imagen }) {
@@ -80,7 +61,43 @@ async function deleteCategoria(pool, id) {
   }
 }
 
+// Obtener todas las categorías (sin imagen)
+async function getAllCategorias(pool) {
+  try {
+    const [rows] = await pool.query("SELECT id, nombre FROM categorias");
+    return rows.map(cat => ({
+      id: cat.id,
+      nombre: cat.nombre
+    }));
+  } catch (err) {
+    throw new Error("Error al obtener categorías: " + err.message);
+  }
+}
+
+// Obtener categoría por ID (sí devuelve imagen)
+async function getCategoriaById(pool, id) {
+  try {
+    const [rows] = await pool.query(
+      "SELECT id, nombre, imagen FROM categorias WHERE id = ?",
+      [id]
+    );
+    if (rows.length === 0) return null;
+
+    const categoria = rows[0];
+    return {
+      id: categoria.id,
+      nombre: categoria.nombre,
+      imagen: categoria.imagen ? categoria.imagen.toString("base64") : null
+    };
+  } catch (err) {
+    throw new Error("Error al obtener la categoría: " + err.message);
+  }
+}
+
+
+
 module.exports = {
+  getAllCategoriasimg,
   getAllCategorias,
   createCategoria,
   getCategoriaById,
