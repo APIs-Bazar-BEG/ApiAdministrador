@@ -54,4 +54,16 @@ router.delete(
   (req, res) => productosController.deleteProducto(req, res)
 );
 
+// Buscar por IDs (POST porque se manda array en body)
+router.post("/buscar", productosController.buscarPorIds);
+
+// Productos por categoría
+router.get("/categoria/:id", productosController.getByCategoria);
+
+// Productos activos
+router.get("/activos", productosController.getActivos);
+
+// Productos activos por categoría
+router.get("/categoria/:id/activos", productosController.getActivosPorCategoria);
+
 module.exports = router;

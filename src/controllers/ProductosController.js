@@ -98,11 +98,57 @@ async function getProductoByIdController(req, res) {
   }
 }
 
+// Buscar por IDs
+async function buscarPorIds(req, res) {
+  try {
+    const ids = req.body.ids; // Esperamos { "ids": [1,2,3] }
+    const productos = await productosService.buscarPorIds(pool, ids);
+    res.json(productos);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+// Buscar por categoría
+async function getByCategoria(req, res) {
+  try {
+    const { id } = req.params;
+    const productos = await productosService.findByCategoriaId(pool, id);
+    res.json(productos);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+// Productos activos
+async function getActivos(req, res) {
+  try {
+    const productos = await productosService.obtenerProductosActivos(pool);
+    res.json(productos);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+// Productos activos por categoría
+async function getActivosPorCategoria(req, res) {
+  try {
+    const { id } = req.params;
+    const productos = await productosService.obtenerProductosPorCategoriaActivos(pool, id);
+    res.json(productos);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
 
 module.exports = {
   getAllProductos,
   createProducto,
   getProductoById: getProductoByIdController,
   updateProducto: (req, res) => updateProducto(req, res),
-  deleteProducto: (req, res) => deleteProducto(req, res)
+  deleteProducto: (req, res) => deleteProducto(req, res),
+  buscarPorIds,
+  getByCategoria,
+  getActivos,
+  getActivosPorCategoria
 };

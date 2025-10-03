@@ -109,6 +109,62 @@ async function deleteProducto(pool, id) {
   return result.affectedRows > 0;
 }
 
+// Buscar productos por lista de IDs
+async function buscarPorIds(pool, productosIds) {
+  try {
+    if (!productosIds || productosIds.length === 0) return [];
+
+    const placeholders = productosIds.map(() => "?").join(",");
+    const [rows] = await pool.query(
+      `SELECT * FROM productos WHERE id IN (${placeholders})`,
+      productosIds
+    );
+
+    return rows;
+  } catch (err) {
+    throw new Error("Error al buscar productos por IDs: " + err.message);
+  }
+}
+
+// Buscar productos por categoría
+async function findByCategoriaId(pool, categoriaId) {
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM productos WHERE categoria_id = ?",
+      [categoriaId]
+    );
+    return rows;
+  } catch (err) {
+    throw new Error("Error al buscar productos por categoría: " + err.message);
+  }
+}
+
+// Obtener solo productos activos
+async function obtenerProductosActivos(pool) {
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM productos WHERE activo = 1"
+    );
+    return rows;
+  } catch (err) {
+    throw new Error("Error al obtener productos activos: " + err.message);
+  }
+}
+
+// Obtener productos activos por categoría
+async function obtenerProductosPorCategoriaActivos(pool, categoriaId) {
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM productos WHERE categoria_id = ? AND activo = 1",
+      [categoriaId]
+    );
+    return rows;
+  } catch (err) {
+    throw new Error("Error al obtener productos por categoría activos: " + err.message);
+  }
+}
+
+
 module.exports = {
   getAllProductos,
   createProducto,
@@ -116,5 +172,9 @@ module.exports = {
   getProductoImagen, //  ruta de imagen
   updateProducto,
   deleteProducto,
-  getAllProductosImg // productos con imagen
+  getAllProductosImg, // productos con imagen
+  buscarPorIds,
+  findByCategoriaId,
+  obtenerProductosActivos,
+  obtenerProductosPorCategoriaActivos
 };
